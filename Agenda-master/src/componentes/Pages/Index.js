@@ -10,23 +10,25 @@ export const Index = () => {
   const [key, setSearchKey] = useState("");
 
   useEffect(() => {
-    let getContacts = localStorage.getItem("contacts");
-    setContactData(JSON.parse(getContacts));
-  }, []);
-
+    setContactData(JSON.parse(localStorage.getItem("contacts")))
+  }, [])
   const addContact = (data) => {
-    if (
-      !contactData.find((c) => c.name.toLowerCase() === data.name.toLowerCase())
-    ) {
-      data.id = Date.now();
-      setContactData([...contactData, data]);
-      localStorage.setItem("contacts", JSON.stringify(contactData));
-      Swal.fire({
-        title: "Contacto guardado!",
-        icon: "success",
-        confirmButtonColor: "#9bc59d",
-      });
+    let arr = [];
+    data.id = Date.now();
+    let lStorage = localStorage.getItem("contacts")
+    if (lStorage) {
+      arr = JSON.parse(lStorage)
+      arr.push(data)
+    } else {
+      arr[0] = data
     }
+    localStorage.setItem("contacts", JSON.stringify(arr))
+    Swal.fire({
+      title: "Contacto guardado!",
+      icon: "success",
+      confirmButtonColor: "#9bc59d",
+    });
+    setContactData(arr)
   };
 
   const updateContact = () => {
@@ -52,18 +54,16 @@ export const Index = () => {
     });
     localStorage.setItem("contacts", JSON.stringify(deletedContacts));
   };
-
   const searchContact = (key) => {
     if (key) {
-      const searched = contactData.filter((item) => item.name === key);
+      const searched = contactData.filter((item) => item.name.includes(key));
       setContactData(searched);
       setShowClear(true);
-      console.log(searched);
     }
   };
 
   return (
-    
+
     <div className="container mt-5 mb-5">
       <div className="row">
         <ContactoForm addContact={addContact} setDataToEdit={setDataToEdit} />
@@ -72,37 +72,37 @@ export const Index = () => {
         <input
           placeholder="Ingrese un nombre"
           onChange={(e) => setSearchKey(e.target.value)}
-        className="input-nombre"></input>
+          className="input-nombre"></input>
 
         {showClear ? (
           <button onClick={() => window.location.reload()}>X</button>
         ) : (
-          
+
           <button onClick={() => searchContact(key)} className="boton-buscar"> Buscar </button>
 
         )}
-        </div>
-      
+      </div>
+
 
       {/* CONTACTOS */}
       <div className="container-2">
-      {contactData.map((item) => (
-        <div key={item.id}>
-          <h1>{item.name}</h1>
-          <button
-            onClick={() => {
-              setDataToEdit(item);
-              setShowEdit(true);
-            }}
-          className="mostrar-contacto">
-            Mostrar Contacto
-          </button>
-          <button onClick={() => deleteContact(item.id)} className="eliminar-contacto">Eliminar</button>
-        </div>
-        
-        
-      ))}
-     </div>
+        {contactData && contactData.map((item) => (
+          <div key={item.id}>
+            <h1>{item.name}</h1>
+            <button
+              onClick={() => {
+                setDataToEdit(item);
+                setShowEdit(true);
+              }}
+              className="mostrar-contacto">
+              Mostrar Contacto
+            </button>
+            <button onClick={() => deleteContact(item.id)} className="eliminar-contacto">Eliminar</button>
+          </div>
+
+
+        ))}
+      </div>
 
 
       {/* FORM TO EDIT */}
@@ -116,14 +116,14 @@ export const Index = () => {
             onChange={(e) =>
               setDataToEdit({ ...dataToEdit, name: e.target.value })
             }
-          className="input1"></input>
+            className="input1"></input>
           <input
             type="text"
             value={dataToEdit.phone}
             onChange={(e) =>
               setDataToEdit({ ...dataToEdit, phone: e.target.value })
             }
-          className="input2"></input>
+            className="input2"></input>
           <button onClick={() => setShowEdit(false)} className="volver">Volver</button>
           <button onClick={updateContact} className="confirmar">Confirmar</button>
         </div>
