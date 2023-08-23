@@ -8,6 +8,7 @@ export const Index = () => {
   const [showEdit, setShowEdit] = useState(false);
   const [showClear, setShowClear] = useState(false);
   const [key, setSearchKey] = useState("");
+  const [searchedContacts, setSearchedContacts] = useState([])
 
   useEffect(() => {
     setContactData(JSON.parse(localStorage.getItem("contacts")))
@@ -31,17 +32,19 @@ export const Index = () => {
     setContactData(arr)
   };
 
-  const updateContact = () => {
+  const updateContact = (id) => {
     const updatedContacts = contactData.map((contact) =>
-      contact.id === dataToEdit.id ? dataToEdit : contact
+      contact.id === id ? dataToEdit : contact
     );
-    setContactData(updatedContacts);
+
     setShowEdit(false);
     Swal.fire({
       title: "Contacto actualizado!",
       icon: "success",
       confirmButtonColor: "#9bc59d",
     });
+    setContactData(updatedContacts)
+    setSearchedContacts([])
     localStorage.setItem("contacts", JSON.stringify(updatedContacts));
   };
   const deleteContact = (id) => {
@@ -54,12 +57,10 @@ export const Index = () => {
     });
     localStorage.setItem("contacts", JSON.stringify(deletedContacts));
   };
-  const searchContact = (key) => {
-    if (key) {
-      const searched = contactData.filter((item) => item.name.includes(key));
-      setContactData(searched);
-      setShowClear(true);
-    }
+  const searchContact = () => {
+    const searched = contactData.filter((item) => item.name.includes(key));
+    setSearchedContacts(searched);
+    setShowClear(true);
   };
 
   return (
@@ -78,7 +79,7 @@ export const Index = () => {
           <button onClick={() => window.location.reload()}>X</button>
         ) : (
 
-          <button onClick={() => searchContact(key)} className="boton-buscar"> Buscar </button>
+          <button onClick={() => searchContact()} className="boton-buscar"> Buscar </button>
 
         )}
       </div>
@@ -86,7 +87,7 @@ export const Index = () => {
 
       {/* CONTACTOS */}
       <div className="container-2">
-        {contactData && contactData.map((item) => (
+        {searchedContacts.length === 0 && contactData && contactData.map((item) => (
           <div key={item.id}>
             <h1>{item.name}</h1>
             <button
@@ -102,6 +103,20 @@ export const Index = () => {
 
 
         ))}
+        {searchedContacts && searchedContacts.map((searched) =>
+          <div key={searched.id}>
+            <h1>{searched.name}</h1>
+            <button
+              onClick={() => {
+                setDataToEdit(searched);
+                setShowEdit(true);
+              }}
+              className="mostrar-contacto">
+              Mostrar Contacto
+            </button>
+            <button onClick={() => deleteContact(searched.id)} className="eliminar-contacto">Eliminar</button>
+          </div>
+        )}
       </div>
 
 
@@ -125,7 +140,7 @@ export const Index = () => {
             }
             className="input2"></input>
           <button onClick={() => setShowEdit(false)} className="volver">Volver</button>
-          <button onClick={updateContact} className="confirmar">Confirmar</button>
+          <button onClick={() => updateContact(dataToEdit.id)} className="confirmar">Confirmar</button>
         </div>
       ) : (
         ""
