@@ -63,6 +63,12 @@ export const Index = () => {
     setShowClear(true);
   };
 
+  const cleanSearch = () => {
+    setSearchedContacts([])
+    document.querySelector(".input-nombre").value = ""
+    setShowClear(false);
+  }
+
   return (
 
     <div className="container mt-5 mb-5">
@@ -76,7 +82,7 @@ export const Index = () => {
           className="input-nombre"></input>
 
         {showClear ? (
-          <button onClick={() => window.location.reload()}>X</button>
+          <button onClick={() => cleanSearch()}>X</button>
         ) : (
 
           <button onClick={() => searchContact()} className="boton-buscar"> Buscar </button>
